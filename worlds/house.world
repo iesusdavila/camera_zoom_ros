@@ -10,6 +10,9 @@
       <uri>model://sun</uri>
     </include>
 
-    <!-- reference to your plugin -->
+    <include>
+      <pose>24 0 0 0 0 -1.5708</pose>
+      <uri>model://turtlebot3_house</uri>
+    </include>
   </world>
 </sdf>
