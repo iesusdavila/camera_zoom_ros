@@ -28,19 +28,15 @@ class DynamicZoom:
     def image_callback(self, data):
         cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
         height, width, _ = cv_image.shape
-        rospy.loginfo("Image size: " + str(width) + "x" + str(height))
 
         zoom_percentage = 1.0 - self.zoom_factor / 100.0
         new_width = int(width * zoom_percentage)
         new_height = int(height * zoom_percentage)
-        rospy.loginfo("New image size: " + str(new_width) + "x" + str(new_height))
 
         start_x = int((width - new_width) / 2)
         start_y = int((height - new_height) / 2)
-        rospy.loginfo("Start x: " + str(start_x) + " Start y: " + str(start_y))
 
         zoomed_image = cv_image[start_y:start_y+new_height, start_x:start_x+new_width]
-        rospy.loginfo("Recortar desde " + str(start_x) + " hasta " + str(start_x+new_width) + " y desde " + str(start_y) + " hasta " + str(start_y+new_height))
         
         zoomed_image_msg = self.bridge.cv2_to_imgmsg(zoomed_image, "bgr8")
         self.zoomed_image_pub.publish(zoomed_image_msg)
