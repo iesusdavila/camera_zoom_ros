@@ -6,6 +6,7 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Float64
 from cv_bridge import CvBridge
 import sys
+import numpy as np
 
 class DynamicZoom:
     def __init__(self):
@@ -13,7 +14,7 @@ class DynamicZoom:
 
         argv = rospy.myargv(argv=sys.argv)
         if len(argv) < 3:
-            rospy.logerr("It is necessary to specify the name of the image theme and the zoom factor as an argument to the executable. For example: /camera/image_raw /factor_zoom")
+            rospy.logerr("It is necessary to specify the name of the image topic and the zoom factor topic as arguments to the executable. For example: /camera/image_raw /factor_zoom")
             sys.exit(1)
         self.sub_image = argv[1]
         self.sub_factor_zoom = argv[2]
@@ -26,12 +27,12 @@ class DynamicZoom:
 
     def image_callback(self, data):
         cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        
-        height, width = cv_image.shape[:2]
+        height, width, _ = cv_image.shape
         rospy.loginfo("Image size: " + str(width) + "x" + str(height))
 
-        new_width = int(width / self.zoom_factor)
-        new_height = int(height / self.zoom_factor)
+        zoom_percentage = 1.0 - self.zoom_factor / 100.0
+        new_width = int(width * zoom_percentage)
+        new_height = int(height * zoom_percentage)
         rospy.loginfo("New image size: " + str(new_width) + "x" + str(new_height))
 
         start_x = int((width - new_width) / 2)
@@ -45,10 +46,10 @@ class DynamicZoom:
         self.zoomed_image_pub.publish(zoomed_image_msg)
 
     def zoom_factor_callback(self, data):
-        if data.data < 1.0:
-            self.zoom_factor = 1.0
-        elif data.data > 10.0:
-            self.zoom_factor = 10.0
+        if data.data < 0.0:
+            self.zoom_factor = 0.0
+        elif data.data >= 100.0:
+            self.zoom_factor = 99.0
         else:
             self.zoom_factor = data.data
 
