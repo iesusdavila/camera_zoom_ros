@@ -6,7 +6,6 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Float64
 from cv_bridge import CvBridge
 import sys
-import numpy as np
 
 class DynamicZoom:
     def __init__(self):
