@@ -5,6 +5,7 @@ import rospy
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float64
 from cv_bridge import CvBridge
+import cv2 as cv
 import sys
 
 class DynamicZoom:
@@ -36,7 +37,14 @@ class DynamicZoom:
         start_y = int((height - new_height) / 2)
 
         zoomed_image = cv_image[start_y:start_y+new_height, start_x:start_x+new_width]
+
+        alto, ancho, _ = zoomed_image.shape
+
+        centro_x = ancho // 2
+        centro_y = alto // 2
         
+        cv.circle(zoomed_image, (centro_x, centro_y), 10, (0,0,255), thickness=-1)
+
         zoomed_image_msg = self.bridge.cv2_to_imgmsg(zoomed_image, "bgr8")
         self.zoomed_image_pub.publish(zoomed_image_msg)
 
